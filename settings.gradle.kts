@@ -1,6 +1,7 @@
 rootProject.name = "springboot"
 
 include("common")
+include("common:snowflake")
 include("service")
 include("service:article")
 include("service:comment")
