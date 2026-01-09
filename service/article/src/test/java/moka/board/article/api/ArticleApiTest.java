@@ -25,6 +25,32 @@ public class ArticleApiTest {
 		System.out.println("Response: " + response);
 	}
 
+	@Test
+	void readTest(){
+		Long id = 267818972899192832L;
+		ArticleResponse response = read(id);
+
+		System.out.println("Response: " + response);
+	}
+
+	@Test
+	void updateTest(){
+		Long id = 267818972899192832L;
+		ArticleUpdateRequest request = new ArticleUpdateRequest(
+			"Updated Title",
+			"Updated Content"
+		);
+		ArticleResponse response = update(id, request);
+
+		System.out.println("Response: " + response);
+	}
+
+	@Test
+	void deleteTest(){
+		Long id = 267818972899192832L;
+		delete(id);
+	}
+
 	ArticleResponse create(ArticleCreateRequest request){
 		return restClient.post()
 			.uri("/v1/articles")
@@ -32,6 +58,26 @@ public class ArticleApiTest {
 			.retrieve()
 			.body(ArticleResponse.class);
 	}
+	ArticleResponse read(Long id){
+		return restClient.get()
+			.uri("/v1/articles/{id}", id)
+			.retrieve()
+			.body(ArticleResponse.class);
+	}
+	ArticleResponse update(Long id, ArticleUpdateRequest request){
+		return restClient.put()
+			.uri("/v1/articles/{id}", id)
+			.body(request)
+			.retrieve()
+			.body(ArticleResponse.class);
+	}
+	ArticleResponse delete(Long id){
+		return restClient.delete()
+			.uri("/v1/articles/{id}", id)
+			.retrieve()
+			.body(ArticleResponse.class);
+	}
+
 
 	@Getter
 	@AllArgsConstructor

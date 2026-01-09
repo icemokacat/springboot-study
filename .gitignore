@@ -36,3 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 *.env
+service/article/src/test/resources/application.yml
