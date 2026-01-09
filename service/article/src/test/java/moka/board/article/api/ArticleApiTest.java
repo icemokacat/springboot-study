@@ -1,8 +1,11 @@
 package moka.board.article.api;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
 
 import lombok.AllArgsConstructor;
@@ -63,6 +66,37 @@ public class ArticleApiTest {
 		Assertions.assertNotNull(result);
 		System.out.println("Read all articles test completed. count = " + result.getArticleCount());
 		for(var article : result.getArticles()){
+			System.out.println("Article: " + article);
+		}
+	}
+
+	@Test
+	void readAllInfiniteScrollTest(){
+		List<ArticleResponse> articles1 = restClient.get()
+			.uri("/v1/articles/infinite-scroll?boardId={boardId}&pageSize={pageSize}", 1L, 30L)
+			.retrieve()
+			.body(new ParameterizedTypeReference<>() {
+
+			});
+
+		Assertions.assertNotNull(articles1);
+		System.out.println("Read all infinite scroll articles test completed. count = " + articles1.size());
+		for(ArticleResponse article : articles1) {
+			System.out.println("Article: " + article);
+		}
+
+		Long lastArticleId = articles1.getLast().getArticleId();
+
+		List<ArticleResponse> articles2 = restClient.get()
+			.uri("/v1/articles/infinite-scroll?boardId={boardId}&pageSize={pageSize}&lastArticleId={lastArticleId}",
+				1L, 30L, lastArticleId)
+			.retrieve()
+			.body(new ParameterizedTypeReference<>() {
+			});
+
+		Assertions.assertNotNull(articles2);
+		System.out.println("Read all infinite scroll articles (with lastArticleId) test completed. count = " + articles2.size());
+		for(ArticleResponse article : articles2) {
 			System.out.println("Article: " + article);
 		}
 	}
