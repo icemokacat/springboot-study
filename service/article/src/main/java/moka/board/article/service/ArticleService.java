@@ -1,5 +1,7 @@
 package moka.board.article.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -8,6 +10,7 @@ import moka.board.article.entity.Article;
 import moka.board.article.repository.ArticleRepository;
 import moka.board.article.service.request.ArticleCreateRequest;
 import moka.board.article.service.request.ArticleUpdateRequest;
+import moka.board.article.service.response.ArticlePageResponse;
 import moka.board.article.service.response.ArticleResponse;
 import moka.board.common.snowflake.Snowflake;
 
@@ -46,6 +49,21 @@ public class ArticleService {
 	@Transactional
 	public void delete(Long articleId) {
 		articleRepository.deleteById(articleId);
+	}
+
+	public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize) {
+		List<Article> articles = articleRepository.findAll(boardId, (page-1) * pageSize, pageSize);
+		if (articles.isEmpty()) {
+			return ArticlePageResponse.of(List.of(), 0L);
+		}
+		Long articleCount = articleRepository.count(
+				boardId,
+				PageLimitCalculator.calculatePageLimit(page, pageSize, 10L)
+			);
+		List<ArticleResponse> articleResponses = articles.stream()
+			.map(ArticleResponse::from)
+			.toList();
+		return ArticlePageResponse.of(articleResponses, articleCount);
 	}
 
 }

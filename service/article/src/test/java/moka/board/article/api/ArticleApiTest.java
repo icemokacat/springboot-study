@@ -1,11 +1,13 @@
 package moka.board.article.api;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestClient;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import moka.board.article.service.response.ArticlePageResponse;
 import moka.board.article.service.response.ArticleResponse;
 
 public class ArticleApiTest {
@@ -49,6 +51,20 @@ public class ArticleApiTest {
 	void deleteTest(){
 		Long id = 267818972899192832L;
 		delete(id);
+	}
+
+	@Test
+	void readAllTest(){
+		ArticlePageResponse result = restClient.get()
+			.uri("/v1/articles?boardId={boardId}&page={page}&pageSize={pageSize}", 1L, 50000L, 30L)
+			.retrieve()
+			.body(ArticlePageResponse.class);
+
+		Assertions.assertNotNull(result);
+		System.out.println("Read all articles test completed. count = " + result.getArticleCount());
+		for(var article : result.getArticles()){
+			System.out.println("Article: " + article);
+		}
 	}
 
 	ArticleResponse create(ArticleCreateRequest request){

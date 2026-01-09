@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import moka.board.article.service.ArticleService;
 import moka.board.article.service.request.ArticleCreateRequest;
 import moka.board.article.service.request.ArticleUpdateRequest;
+import moka.board.article.service.response.ArticlePageResponse;
 import moka.board.article.service.response.ArticleResponse;
 
 @RestController
@@ -23,6 +25,16 @@ public class ArticleController {
 	public ArticleResponse read(@PathVariable Long articleId)
 	{
 		return articleService.read(articleId);
+	}
+
+	@GetMapping("/v1/articles")
+	public ArticlePageResponse readAll(
+		@RequestParam("boardId") Long boardId,
+		@RequestParam("page") Long page,
+		@RequestParam("pageSize") Long pageSize
+	)
+	{
+		return articleService.readAll(boardId, page, pageSize);
 	}
 
 	@PostMapping("/v1/articles")
@@ -42,5 +54,7 @@ public class ArticleController {
 	{
 		articleService.delete(articleId);
 	}
+
+
 
 }
