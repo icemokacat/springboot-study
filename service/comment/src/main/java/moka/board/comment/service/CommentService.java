@@ -2,6 +2,8 @@ package moka.board.comment.service;
 
 import static java.util.function.Predicate.*;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import moka.board.comment.entity.Comment;
 import moka.board.comment.repository.CommentRepository;
 import moka.board.comment.service.request.CommentCreateRequest;
+import moka.board.comment.service.response.CommentPageResponse;
 import moka.board.comment.service.response.CommentResponse;
 import moka.board.common.snowflake.Snowflake;
 
@@ -83,6 +86,27 @@ public class CommentService {
 				// 재귀 삭제
 				.ifPresent(this::delete);
 		}
+	}
+
+	public CommentPageResponse readAll(Long articleId, Long page, Long pageSize) {
+		long offset = (page - 1) * pageSize;
+		long limit 	= PageLimitCalculator.calculatePageLimit(page, pageSize, 10L);
+		List<CommentResponse> comments = commentRepository.findAll(articleId, offset, pageSize)
+			.stream()
+			.map(CommentResponse::from)
+			.toList();
+		Long commentCount = commentRepository.count(articleId, limit);
+		return CommentPageResponse.of(comments, commentCount);
+	}
+
+	public List<CommentResponse> readAll(Long articleId, Long lastCommentId, Long lastParentCommentId, Long limit){
+		List<Comment> dbResult = lastParentCommentId == null || lastCommentId == null
+			? commentRepository.findAllInfiniteScroll(articleId, limit)
+			: commentRepository.findAllInfiniteScroll(articleId, lastParentCommentId, lastCommentId, limit);
+
+		return dbResult.stream()
+			.map(CommentResponse::from)
+			.toList();
 	}
 
 }
